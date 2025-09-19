@@ -1,7 +1,7 @@
 ---
 title: "CEVE 543 Fall 2025 Lab 4: Bayesian Rainfall Analysis"
 subtitle: "Iterative prior specification, Bayesian GEV workflow, Two-station comparison with ArviZ.jl"
-author: CEVE 543 Fall 2025
+author: Sidhika Tripathee
 date: "2025-09-19"
 type: "lab"
 module: 1
@@ -44,50 +44,24 @@ code-line-numbers: false
 code-block-font-size: "0.85em"
 ---
 
-## Do Before Lab {.unnumbered}
-
-1. **Accept the assignment.** Use the GitHub Classroom link posted on Canvas to "accept" the assignment, which will give you your own GitHub repository.
-2. **Clone your repository** to your computer using GitHub Desktop or the command line.
-3. **Open the repository in VS Code** directly from VS Code, GitHub Desktop, or your command line.
-4. **Activate the Julia environment.** In VS Code, open the command palette (View → Command Palette) and type "Julia: Start REPL". Alternatively, run `julia --project=.` in the terminal, then run `using Pkg; Pkg.instantiate()` to install required packages. The easiest method is to type `]` in the REPL to enter package mode, then type `instantiate`.
-5. **Review the Bayesian workflow concepts** from Module 1, particularly prior specification and posterior inference.
-6. **Verify rendering works.** Run `quarto render index.qmd` in your terminal - it should create both PDF and HTML documents.
-
-## Do During Lab {.unnumbered}
-
-This lab guides you through implementing a complete Bayesian workflow for extreme value analysis:
-
-1. **Develop iterative priors** using domain knowledge and prior predictive checks
-2. **Implement Bayesian GEV inference** using Turing.jl with informative priors
-3. **Compare two stations** using the same Bayesian framework
-4. **Validate your models** using modern Bayesian diagnostics with ArviZ.jl
-
-As with previous labs, you do not need to write code from scratch -- focus on understanding the workflow, modifying parameters, and interpreting results.
-
-To submit your work, push your changes to GitHub, render to PDF, and upload the PDF to Canvas.
-
-## Your Analysis {.unnumbered}
-
-::: {.callout-important}
-## Instructions
-Delete this entire section (including the "Do Before Lab" and "Do During Lab" sections above) and replace it with your analysis responses. Use the numbered format below for your final submission.
-:::
-
 **Response 1: Prior Evolution and Justification**
 *How did your understanding of Houston's extreme rainfall evolve through the iterative prior specification process? What knowledge sources proved most valuable for extreme value analysis?*
+I learned that some prior belifs could be very unrealistic, such as the first version, since it had very weak priors. Knowing that Houston area has a lot of rainfall, and is close to the coast, I increased the priors several times. I realized I had to increase the rainfall amounts more than I expected in order to get a curve that was similar to the Galveston GEV curve I got from Lab 3. I also reduced the uncertainty because I wanted it to remain within 2 $\theta\$. 
 
 **Response 2: Data Learning and Posterior Insights**
 *How did the observed data change your prior beliefs about GEV parameters? What does this reveal about the balance between domain knowledge and empirical evidence in Bayesian analysis?*
-
+It seems like the observed data matched with my priors given the figure, but there is much more uncertainty in my prior values. The posterior distribution is much narrower. It seems Bayesian analysis values priors (domain knowledge) less if there is strong empirical evidence. 
 **Response 3: Two-Station Bayesian Comparison**
 *Should the same priors apply to both stations? How do posterior differences relate to geographic and climatic factors, and what are the implications for regional analysis?*
+The same priors should apply given that they are close geographically and should not have massive differences in rainfall amounts or climates. Although, it does seem like Alvin (my comparsion station) has a higher rainfall extreme and hence has a higher tail. But there is significant overlap in the return level uncertainties indicating that they are very similair. The difference between them could be due to difference in years of data, topography or proximity to a body of water. This implies that we should be mindful of spatial variability in creating regional assesments and change prior levels accordingly if needed.
 
 **Response 4: Uncertainty Quantification and Model Validation**
-*How does Bayesian uncertainty quantification compare to MLE approaches? What do the diagnostic results tell you about model reliability?*
+*How does Bayesian uncertainty quantification compare to MLE approaches? What do the diagnostic results tell you about model reliability?* 
+Bayesian uncertainty accounts for priors and observational data while MLE only takes into account observational data, which underestimates extremes or overestimates noise. Diagnostic results such as $\hat{R}$ being 1,and mixed trace plots show that conergence was reached and the model is reliable.
 
 **Response 5: Bayesian Workflow for PS1**
 *How will this iterative workflow experience help you tackle regional extreme value analysis in PS1? What challenges do you anticipate?*
-
+This iterative workflow experience will help in PS 1 by allowing me to identify accurate priors, and combine them with observed data for a more complete interpertation. Challenges I anticipate include selecting priors for regions with less data, and accurately interpreting spaitial variability.
 ## Data Setup and Package Loading
 
 ### Loading Required Packages
@@ -177,7 +151,7 @@ Next, choose the same station you used in Lab 3 for your analysis.
 
 
 ```{julia}
-my_stnid = 111  # REQUIRED: replace with your chosen station ID
+my_stnid = 779  # REQUIRED: replace with your chosen station ID
 my_station = @chain stations begin
     @filter(stnid == !!my_stnid)  # <1>
     first
@@ -333,10 +307,10 @@ Start by defining your return level beliefs.
 ```{julia}
 #| output: false
 return_level_priors = [
-    ReturnLevelPrior(2, 3.0, 1.5),
-    ReturnLevelPrior(10, 8.0, 4),
-    ReturnLevelPrior(50, 12.0, 6),
-    ReturnLevelPrior(100, 16, 8),
+    ReturnLevelPrior(2, 5.0, 2.0),
+    ReturnLevelPrior(10, 10, 2.5),
+    ReturnLevelPrior(50, 15, 4),
+    ReturnLevelPrior(100, 22, 5.5),
 ]
 ```
 
@@ -380,7 +354,7 @@ As before, we generate these samples
 prior_idata_v2 = let
     fname = joinpath(lab_dir, "prior_v2.nc")
     model = gev_model_quantile_priors([]; return_level_priors=return_level_priors)
-    overwrite = true
+    overwrite = false
     load_or_sample(fname, model; overwrite=overwrite)
 end
 prior_GEVs_v2 = vec(GeneralizedExtremeValue.(prior_idata_v2.posterior.μ, exp.(prior_idata_v2.posterior.log_σ), prior_idata_v2.posterior.ξ))
@@ -597,7 +571,7 @@ nearest_stations = find_nearest_stations(my_station, stations, 5)
 We will pick one of these five nearest stations for comparison
 
 ```{julia}
-comparison_stnid = 478 # MODIFY THIS AND CHOOSE YOUR COMPARISON
+comparison_stnid = 93 # MODIFY THIS AND CHOOSE YOUR COMPARISON
 
 comparison_station = @chain stations begin
     @filter(stnid == !!comparison_stnid)
