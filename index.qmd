@@ -45,22 +45,23 @@ code-block-font-size: "0.85em"
 ---
 
 **Response 1: Prior Evolution and Justification**
-*How did your understanding of Houston's extreme rainfall evolve through the iterative prior specification process? What knowledge sources proved most valuable for extreme value analysis?*
-I learned that some prior belifs could be very unrealistic, such as the first version, since it had very weak priors. Knowing that Houston area has a lot of rainfall, and is close to the coast, I increased the priors several times. I realized I had to increase the rainfall amounts more than I expected in order to get a curve that was similar to the Galveston GEV curve I got from Lab 3. I also reduced the uncertainty because I wanted it to remain within 2 $\theta\$. 
+
+I learned that some prior belief could be very unrealistic, such as the first version, since it had very weak priors. Knowing that Houston area has a lot of rainfall, and is close to the coast, I increased the priors several times. I realized I had to increase the rainfall amounts more than I expected in order to get a curve that was similar to the Galveston GEV curve I got from Lab 3. I also reduced the uncertainty because I wanted it to remain within 2 $\sigma$.
 
 **Response 2: Data Learning and Posterior Insights**
-*How did the observed data change your prior beliefs about GEV parameters? What does this reveal about the balance between domain knowledge and empirical evidence in Bayesian analysis?*
-It seems like the observed data matched with my priors given the figure, but there is much more uncertainty in my prior values. The posterior distribution is much narrower. It seems Bayesian analysis values priors (domain knowledge) less if there is strong empirical evidence. 
+
+It seems like the observed data matched with my priors given the figure, but there is much more uncertainty in my prior values. In contrast, the posterior distribution using Bayesian analysis is much narrower. It seems that Bayesian analysis values priors (domain knowledge) less if there is strong, and a more robust set of empirical evidence. 
+
 **Response 3: Two-Station Bayesian Comparison**
-*Should the same priors apply to both stations? How do posterior differences relate to geographic and climatic factors, and what are the implications for regional analysis?*
-The same priors should apply given that they are close geographically and should not have massive differences in rainfall amounts or climates. Although, it does seem like Alvin (my comparsion station) has a higher rainfall extreme and hence has a higher tail. But there is significant overlap in the return level uncertainties indicating that they are very similair. The difference between them could be due to difference in years of data, topography or proximity to a body of water. This implies that we should be mindful of spatial variability in creating regional assesments and change prior levels accordingly if needed.
+
+The same priors should apply given that the stations are close geographically and should not have significant differences in rainfall amounts or climates. But, Alvin (my comparsion station) has a higher rainfall extreme and hence has a higher tail. There is significant overlap in the return level uncertainties indicating that they are very similar. The difference between them could be due to difference in years of data, topography or proximity to a body of water. This implies that we should be mindful of spatial variability in creating regional assesments and change prior levels accordingly if needed.
 
 **Response 4: Uncertainty Quantification and Model Validation**
-*How does Bayesian uncertainty quantification compare to MLE approaches? What do the diagnostic results tell you about model reliability?* 
+
 Bayesian uncertainty accounts for priors and observational data while MLE only takes into account observational data, which underestimates extremes or overestimates noise. Diagnostic results such as $\hat{R}$ being 1,and mixed trace plots show that conergence was reached and the model is reliable.
 
 **Response 5: Bayesian Workflow for PS1**
-*How will this iterative workflow experience help you tackle regional extreme value analysis in PS1? What challenges do you anticipate?*
+
 This iterative workflow experience will help in PS 1 by allowing me to identify accurate priors, and combine them with observed data for a more complete interpertation. Challenges I anticipate include selecting priors for regions with less data, and accurately interpreting spaitial variability.
 ## Data Setup and Package Loading
 
